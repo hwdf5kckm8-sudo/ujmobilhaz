@@ -50,9 +50,21 @@
       status.className = 'mt-4 text-sm text-green-700';
     } catch (error) {
       if (error instanceof TypeError) {
-        status.textContent = 'Az űrlap elküldése folyamatban van…';
-        HTMLFormElement.prototype.submit.call(form);
-        return;
+        try {
+          await fetch(form.action, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: new URLSearchParams(new FormData(form))
+          });
+          form.reset();
+          status.textContent = 'Köszönjük érdeklődését! Ajánlatkérését sikeresen elküldtük, hamarosan felvesszük Önnel a kapcsolatot.';
+          status.className = 'mt-4 text-sm text-green-700';
+          return;
+        } catch (fallbackError) {
+          status.textContent = 'Az űrlap elküldése nem sikerült. Kérjük, próbálja újra, vagy írjon közvetlenül az alom.mobilhazak@gmail.com címre.';
+          status.className = 'mt-4 text-sm text-red-700';
+          return;
+        }
       }
 
       status.textContent = 'Az űrlap elküldése nem sikerült. Kérjük, próbálja újra, vagy írjon közvetlenül az alom.mobilhazak@gmail.com címre.';
